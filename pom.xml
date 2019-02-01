@@ -1,0 +1,91 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>world.gfi</groupId>
+    <artifactId>update-ca-certificates</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+
+    <name>Update CA Certificates</name>
+    <description>
+        OpenJDK doesn't use CA Certificates installed on the system, but use a custom Root CA Certificate store.
+
+        This may cause error if you rely on custom CA certificate to access some HTTPS urls or if you are behind a SSL
+        Proxy.
+
+        This tool will install custom CA certificates in JVM Root CA Certificate Keystore.
+    </description>
+
+    <inceptionYear>2019</inceptionYear>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>http://www.opensource.org/licenses/mit-license.php</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <organization>
+        <name>GFI Informatique</name>
+        <url>https://gfi.world</url>
+    </organization>
+
+    <scm>
+        <url>https://github.com/gfi-centre-ouest/java-update-ca-certificates</url>
+        <connection>scm:git:https://github.com/gfi-centre-ouest/java-update-ca-certificates.git</connection>
+        <developerConnection>scm:git:https://github.com/gfi-centre-ouest/java-update-ca-certificates.git
+        </developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
+    <developers>
+        <developer>
+            <id>Toilal</id>
+            <name>Rémi Alvergnat</name>
+            <email>remi.alvergnat@pragmasphere.com</email>
+            <url>https://github.com/Toilal</url>
+            <organization>GFI Informatique</organization>
+            <organizationUrl>https://gfi.world</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+    </developers>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>${project.build.sourceEncoding}</project.reporting.outputEncoding>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.0</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>info.picocli</groupId>
+            <artifactId>picocli</artifactId>
+            <version>3.9.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.25</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.2.3</version>
+        </dependency>
+    </dependencies>
+</project>
