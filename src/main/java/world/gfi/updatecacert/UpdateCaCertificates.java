@@ -6,7 +6,7 @@ import picocli.CommandLine;
 import picocli.CommandLine.Option;
 
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
@@ -31,15 +31,15 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 
-public class UpdateCaCertificates implements Callable<Void> {
+public class UpdateCaCertificates implements Callable<Integer> {
     private Logger log = LoggerFactory.getLogger(UpdateCaCertificates.class);
 
-    @Option(names = {"-h", "--host"}, defaultValue = "google.com",
+    @Option(names = {"-h", "--host"}, defaultValue = "stackexchange.com",
             description = "Host to check. " +
                     "This will intercept SSL certificates chain returned by this host. If chain is not trusted, " +
-                    "it will add the last certificate in chain to trusted store, or the one specified by index option." + 
-                    "(default: google.com)")
-    private String host = "google.com";
+                    "it will add the last certificate in chain to trusted store, or the one specified by index option." +
+                    "(default: stackoverflow.com)")
+    private String host = "stackoverflow.com";
 
     @Option(names = {"-p", "--port"}, defaultValue = "443", description = "TCP port of the host to check. (default: 443)")
     private Integer port = 443;
@@ -56,15 +56,26 @@ public class UpdateCaCertificates implements Callable<Void> {
     @Option(names = {"-f", "--file"}, description = "File containing certificate file (PEM).")
     private List<File> file;
 
+    @Option(names = {"-t", "--truststore"}, description = "Truststore file to used.")
+    private File truststore;
+
     public static void main(String[] args) {
-        CommandLine.call(new UpdateCaCertificates(), args);
+        Integer ret = CommandLine.call(new UpdateCaCertificates(), args);
+        if (ret != null) {
+            System.exit(ret);
+        }
     }
 
-    public Void call() throws Exception {
+    public Integer call() throws Exception {
         String p = System.getProperty("javax.net.ssl.trustStorePassword") != null ? System.getProperty("javax.net.ssl.trustStorePassword") : "changeit";
         char[] passphrase = p.toCharArray();
 
-        File trustStoreFile = Utils.getTrustStoreFile();
+        File trustStoreFile = null;
+        if (this.truststore != null) {
+            trustStoreFile = this.truststore;
+        } else {
+            trustStoreFile = Utils.getTrustStoreFile();
+        }
 
         log.debug("Loading Trust KeyStore {}", trustStoreFile);
 
@@ -101,14 +112,16 @@ public class UpdateCaCertificates implements Callable<Void> {
                 socket.close();
 
                 log.info("Certificate chain is already trusted.");
-            } catch (SSLException e) {
+
+                return null;
+            } catch (SSLHandshakeException e) {
                 log.warn("Certificate chain is NOT trusted.");
                 log.warn(e.getMessage());
 
                 X509Certificate[] chain = tm.getLastServerChain();
                 if (chain == null) {
                     log.error("Could not obtain server certificate chain");
-                    return null;
+                    return 1;
                 }
 
                 log.info("Certificate chain has {} certificate(s).", chain.length);
@@ -119,8 +132,6 @@ public class UpdateCaCertificates implements Callable<Void> {
 
                 certs.add(chain[this.index]);
             }
-
-            return null;
         }
 
         if (this.file != null) {

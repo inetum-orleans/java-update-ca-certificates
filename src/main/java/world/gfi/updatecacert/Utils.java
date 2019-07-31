@@ -48,6 +48,6 @@ public final class Utils {
             }
         }
 
-        throw new IllegalStateException("No trustStore file was found. Use javax.net.ssl.trustStore system property.");
+        throw new IllegalStateException("No trustStore file was found. Use -t/--truststore option or define javax.net.ssl.trustStore system property.");
     }
 }

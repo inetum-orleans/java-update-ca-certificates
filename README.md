@@ -29,7 +29,7 @@ Usage
 
 ```
 Usage: <main class> [-g=<glob>] [-h=<host>] [-i=<index>] [-p=<port>]
-                    [-d=<directory>]... [-f=<file>]...
+                    [-t=<truststore>] [-d=<directory>]... [-f=<file>]...
   -d, --directory=<directory>
                         Directory containing .crt files to update.
   -f, --file=<file>     File containing certificate file (PEM).
@@ -37,9 +37,12 @@ Usage: <main class> [-g=<glob>] [-h=<host>] [-i=<index>] [-p=<port>]
   -h, --host=<host>     Host to check. This will intercept SSL certificates chain
                           returned by this host. If chain is not trusted, it will
                           add the last certificate in chain to trusted store, or the
-                          one specified by index option.
-  -i, --index=<index>   Index of the certificate to add.
-  -p, --port=<port>     TCP port of the host to check.
+                          one specified by index option.(default: google.com)
+  -i, --index=<index>   Index of the certificate to add. (default: Last certificate
+                          index in certificate chain)
+  -p, --port=<port>     TCP port of the host to check. (default: 443)
+  -t, --truststore=<truststore>
+                        Truststore file to used.
 ```
 
 
