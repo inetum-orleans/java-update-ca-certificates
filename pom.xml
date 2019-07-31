@@ -42,7 +42,7 @@
         <developer>
             <id>Toilal</id>
             <name>Rémi Alvergnat</name>
-            <email>remi.alvergnat@pragmasphere.com</email>
+            <email>remi.alvergnat@gfi.world</email>
             <url>https://github.com/Toilal</url>
             <organization>GFI Informatique</organization>
             <organizationUrl>https://gfi.world</organizationUrl>
@@ -71,6 +71,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.1</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -78,6 +79,7 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <finalName>update-ca-certificates</finalName>
                             <minimizeJar>true</minimizeJar>
                             <createDependencyReducedPom>true</createDependencyReducedPom>
                             <dependencyReducedPomLocation>
@@ -90,6 +92,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
+                <version>3.1.2</version>
                 <configuration>
                     <archive>
                         <manifest>
@@ -97,6 +100,15 @@
                             <mainClass>world.gfi.updatecacert.UpdateCaCertificates</mainClass>
                         </manifest>
                     </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.6.0</version>
+                <configuration>
+                    <mainClass>world.gfi.updatecacert.UpdateCaCertificates</mainClass>
+                    <executable>true</executable>
                 </configuration>
             </plugin>
         </plugins>

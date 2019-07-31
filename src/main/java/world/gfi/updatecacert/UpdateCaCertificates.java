@@ -37,13 +37,14 @@ public class UpdateCaCertificates implements Callable<Void> {
     @Option(names = {"-h", "--host"}, defaultValue = "google.com",
             description = "Host to check. " +
                     "This will intercept SSL certificates chain returned by this host. If chain is not trusted, " +
-                    "it will add the last certificate in chain to trusted store, or the one specified by index option.")
+                    "it will add the last certificate in chain to trusted store, or the one specified by index option." + 
+                    "(default: google.com)")
     private String host = "google.com";
 
-    @Option(names = {"-p", "--port"}, defaultValue = "443", description = "TCP port of the host to check.")
+    @Option(names = {"-p", "--port"}, defaultValue = "443", description = "TCP port of the host to check. (default: 443)")
     private Integer port = 443;
 
-    @Option(names = {"-i", "--index"}, description = "Index of the certificate to add.")
+    @Option(names = {"-i", "--index"}, description = "Index of the certificate to add. (default: Last certificate index in certificate chain)")
     private Integer index;
 
     @Option(names = {"-d", "--directory"}, description = "Directory containing .crt files to update.")
