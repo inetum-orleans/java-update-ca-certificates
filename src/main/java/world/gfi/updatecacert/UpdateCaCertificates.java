@@ -14,6 +14,7 @@ import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -176,11 +177,28 @@ public class UpdateCaCertificates implements Callable<Integer> {
         String alias = cert.getSubjectDN().getName();
 
         keyStore.setCertificateEntry(alias, cert);
+        boolean writable = trustStoreFile.canWrite();
+        boolean shouldRestoreReadonly = false;
+        if (!writable) {
+            writable = trustStoreFile.setWritable(true);
+            shouldRestoreReadonly = true;
+        }
+
+        if (!writable) {
+            log.error("Truststore file is not writable. You should adjust file permissions for " + trustStoreFile + " to allow current user write access.");
+        }
+
         OutputStream out = new FileOutputStream(trustStoreFile);
         try {
             keyStore.store(out, password);
+        } catch (FileNotFoundException e) {
+            log.error("Truststore file is not writable. You should adjust file permissions for " + trustStoreFile + " to allow current user write access.");
+            throw e;
         } finally {
             out.close();
+            if (shouldRestoreReadonly) {
+                trustStoreFile.setWritable(false);
+            }
         }
 
         return alias;
