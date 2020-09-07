@@ -127,7 +127,7 @@ public class UpdateCaCertificates implements Callable<Integer> {
 
                 log.info("Certificate chain has {} certificate(s).", chain.length);
 
-                if (chain.length > 1 && this.index == null || chain.length >= this.index) {
+                if (chain.length >= 1 && (this.index == null || chain.length >= this.index)) {
                     this.index = chain.length - 1;
                 }
 
