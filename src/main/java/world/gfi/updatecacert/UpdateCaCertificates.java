@@ -88,8 +88,6 @@ public class UpdateCaCertificates implements Callable<Integer> {
             in.close();
         }
 
-        PathMatcher pathMatcher = glob == null ? null : FileSystems.getDefault().getPathMatcher("glob:" + glob);
-
         List<X509Certificate> certs = new ArrayList<>();
 
         if (this.file == null && this.directory == null) {
@@ -135,6 +133,8 @@ public class UpdateCaCertificates implements Callable<Integer> {
             }
         }
 
+        PathMatcher pathMatcher = glob == null ? null : FileSystems.getDefault().getPathMatcher("glob:" + glob);
+
         if (this.file != null) {
             for (File file : this.file) {
                 if (shouldUpdate(file, pathMatcher)) {
@@ -169,7 +169,7 @@ public class UpdateCaCertificates implements Callable<Integer> {
     }
 
     private boolean shouldUpdate(File file, PathMatcher pathMatcher) {
-        return file.isFile() && pathMatcher != null && pathMatcher.matches(FileSystems.getDefault().getPath(file.toString()));
+        return file.isFile() && (pathMatcher == null || pathMatcher.matches(FileSystems.getDefault().getPath(file.toString())));
     }
 
     private String updateCaCertificate(KeyStore keyStore, char[] password, File trustStoreFile, X509Certificate cert)
