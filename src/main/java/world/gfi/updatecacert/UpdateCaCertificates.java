@@ -24,6 +24,7 @@ import java.nio.file.PathMatcher;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -159,10 +160,7 @@ public class UpdateCaCertificates implements Callable<Integer> {
 
         for (X509Certificate cert : certs) {
             log.info(String.valueOf(cert));
-
-            String alias = updateCaCertificate(keyStore, passphrase, trustStoreFile, cert);
-
-            log.info("Certificate added to keystore {} using alias '{}'", trustStoreFile, alias);
+            updateCaCertificate(keyStore, passphrase, trustStoreFile, cert);
         }
 
         return null;
@@ -176,29 +174,36 @@ public class UpdateCaCertificates implements Callable<Integer> {
             throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
         String alias = cert.getSubjectDN().getName();
 
-        keyStore.setCertificateEntry(alias, cert);
-        boolean writable = trustStoreFile.canWrite();
-        boolean shouldRestoreReadonly = false;
-        if (!writable) {
-            writable = trustStoreFile.setWritable(true);
-            shouldRestoreReadonly = true;
-        }
-
-        if (!writable) {
-            log.error("Truststore file is not writable. You should adjust file permissions for " + trustStoreFile + " to allow current user write access.");
-        }
-
-        OutputStream out = new FileOutputStream(trustStoreFile);
-        try {
-            keyStore.store(out, password);
-        } catch (FileNotFoundException e) {
-            log.error("Truststore file is not writable. You should adjust file permissions for " + trustStoreFile + " to allow current user write access.");
-            throw e;
-        } finally {
-            out.close();
-            if (shouldRestoreReadonly) {
-                trustStoreFile.setWritable(false);
+        Certificate existingCert = keyStore.getCertificate(alias);
+        if (existingCert != null && existingCert.equals(cert)) {
+            log.info("Certificate already exists in keystore {} using alias '{}'", trustStoreFile, alias);
+        } else {
+            keyStore.setCertificateEntry(alias, cert);
+            boolean writable = trustStoreFile.canWrite();
+            boolean shouldRestoreReadonly = false;
+            if (!writable) {
+                writable = trustStoreFile.setWritable(true);
+                shouldRestoreReadonly = true;
             }
+
+            if (!writable) {
+                log.error("Truststore file is not writable. You should adjust file permissions for " + trustStoreFile + " to allow current user write access.");
+            }
+
+            OutputStream out = new FileOutputStream(trustStoreFile);
+            try {
+                keyStore.store(out, password);
+            } catch (FileNotFoundException e) {
+                log.error("Truststore file is not writable. You should adjust file permissions for " + trustStoreFile + " to allow current user write access.");
+                throw e;
+            } finally {
+                out.close();
+                if (shouldRestoreReadonly) {
+                    trustStoreFile.setWritable(false);
+                }
+            }
+
+            log.info("Certificate added to keystore {} using alias '{}'", trustStoreFile, alias);
         }
 
         return alias;
