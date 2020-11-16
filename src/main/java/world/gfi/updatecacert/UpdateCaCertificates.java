@@ -5,20 +5,8 @@ import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Option;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLHandshakeException;
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509TrustManager;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import javax.net.ssl.*;
+import java.io.*;
 import java.nio.file.FileSystems;
 import java.nio.file.PathMatcher;
 import java.security.KeyStore;
@@ -61,6 +49,9 @@ public class UpdateCaCertificates implements Callable<Integer> {
     @Option(names = {"-t", "--truststore"}, description = "Truststore file to used.")
     private File truststore;
 
+    @Option(names = {"-tl", "--trustore-location"}, description = "Show trustore location")
+    private Boolean trustoreLocation;
+
     public static void main(String[] args) {
         Integer ret = CommandLine.call(new UpdateCaCertificates(), args);
         if (ret != null) {
@@ -77,6 +68,11 @@ public class UpdateCaCertificates implements Callable<Integer> {
             trustStoreFile = this.truststore;
         } else {
             trustStoreFile = Utils.getTrustStoreFile();
+        }
+
+        if (trustoreLocation != null && trustoreLocation) {
+            System.out.println(trustStoreFile);
+            return 0;
         }
 
         log.debug("Loading Trust KeyStore {}", trustStoreFile);
